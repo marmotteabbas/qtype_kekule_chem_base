@@ -81,10 +81,10 @@ function createChemViewer(placeHolder, molData, molDataType, className, inputTyp
 		}
 		else  // molecule
 		{
-			widgetProps.restrainEditorWithCurrObj = true;
+			//widgetProps.restrainEditorWithCurrObj = true;
 			widgetProps.editorProperties = {
-				'predefinedSetting': 'molOnly',
-				'allowCreateNewChild': false
+				//'predefinedSetting': 'molOnly',
+				'allowCreateNewChild': true
 			};
 		}
 

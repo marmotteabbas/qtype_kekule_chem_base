@@ -125,10 +125,9 @@ class qtype_kekule_chem_base_question extends qtype_kekule_multianswer_question 
     {
         $srcDetail = $this->parseAnswerString($src);
         $targetDetail = $this->parseAnswerString($target);
-
-        //var_dump($compareMethod);
-        //var_dump($compareLevel);
-
+         
+    //    return qtype_kekule_chem_utils::compare_arrows($srcDetail, $targetDetail);
+        
         if ($this->isBasedOnSmiles($compareMethod))
         {
             // default, configuration

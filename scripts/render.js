@@ -57,10 +57,10 @@ function createChemWidget(placeHolder, ansCtrlName, className, widgetType, input
 	}
 	else  // molecule
 	{
-		widgetProps.restrainEditorWithCurrObj = true;
+		//widgetProps.restrainEditorWithCurrObj = true;
 		widgetProps.editorProperties = {
-			'predefinedSetting': 'molOnly',
-			'allowCreateNewChild': false
+			//'predefinedSetting': 'molOnly',
+			'allowCreateNewChild': true
 		};
 	}
 
