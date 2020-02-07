@@ -115,32 +115,10 @@ class qtype_kekule_chem_base_edit_form extends qtype_kekule_multianswer_edit_for
     protected function getAnswerDataFormControls($mform, $label, $gradeoptions/*, $ansIndex*/)
     {
         $result = array();
-        //$result[] = $mform->createElement('hidden', 'answer', '');
-        //$result[] = $mform->createElement('text', 'answer', 'Answer', array('size' => 20));
-
-        /*
-        $compareMethod = $this->ansCompareMethods[$ansIndex];
-        if ($compareMethod == qtype_kekule_chem_compare_methods::DEF_METHOD)
-            $compareMethod = $this->defCompareMethod;
-        */
-        //$htmlWidgetClassName = qtype_kekule_chem_html::CLASS_MOL_BLANK;
-        /*
-        $widgetInputType = qtype_kekule_chem_input_type::MOLECULE;
-        if ($this->inputType == qtype_kekule_chem_input_type::DOCUMENT)  // allow input document
-        {
-            //$htmlWidgetClassName = qtype_kekule_chem_html::CLASS_DOC_BLANK;
-            $widgetInputType = qtype_kekule_chem_html::INPUT_TYPE_DOC;
-        }
-        */
-
+        
         $result[] = $mform->createElement('textarea', 'answer', get_string('captionMolecule', 'qtype_kekule_chem_base'),
             'class="' . qtype_kekule_chem_html::CLASS_DESIGN_ANSWER_BLANK . '" data-widget-class="' . qtype_kekule_chem_html::CLASS_DESIGN_VIEWER_BLANK . '"');
-            //. ' data-input-type="' . $widgetInputType . '"');
-        /*
-        $result[] = $mform->createElement('text', 'smiles',
-            'SMILES', array('size' => 20));
-        */
-
+                
         $result[] = $mform->createElement('select', 'comparelevel',
             get_string('captionCompareLevel', 'qtype_kekule_chem_base'),
             array(
@@ -156,21 +134,21 @@ class qtype_kekule_chem_base_edit_form extends qtype_kekule_multianswer_edit_for
             array(
                 qtype_kekule_chem_compare_methods::DEF_METHOD => get_string('molCompareMethodDefault', 'qtype_kekule_chem_base'),
                 qtype_kekule_chem_compare_methods::SMILES => get_string('molCompareMethodSmiles', 'qtype_kekule_chem_base'),
-                //qtype_kekule_chem_compare_methods::MANUAL => get_string('molCompareMethodManual', 'qtype_kekule_chem_base')
-                //qtype_kekule_chem_compare_methods::MOLDATA => get_string('molCompareMethodMolData', 'qtype_kekule_chem_base'),
                 qtype_kekule_chem_compare_methods::PARENTOF => get_string('molCompareMethodParentOf', 'qtype_kekule_chem_base'),
                 qtype_kekule_chem_compare_methods::CHILDOF => get_string('molCompareMethodChildOf', 'qtype_kekule_chem_base')
             )
         );
-        /*
-        $result[] = $mform->createElement('select', 'inputtype',
-            get_string('captionMolInputType', 'qtype_kekule_chem'),
+
+        $result[] = $mform->createElement('select', 'comparemethod',
+            get_string('captionCompareMethod', 'qtype_kekule_chem_base'),
             array(
-                qtype_kekule_chem_compare_methods::SMILES => get_string('molInputTypeMol', 'qtype_kekule_chem'),
-                qtype_kekule_chem_compare_methods::MANUAL => get_string('molInputTypeDoc', 'qtype_kekule_chem')
+                qtype_kekule_chem_compare_methods::DEF_METHOD => get_string('molCompareMethodDefault', 'qtype_kekule_chem_base'),
+                qtype_kekule_chem_compare_methods::SMILES => get_string('molCompareMethodSmiles', 'qtype_kekule_chem_base'),
+                qtype_kekule_chem_compare_methods::PARENTOF => get_string('molCompareMethodParentOf', 'qtype_kekule_chem_base'),
+                qtype_kekule_chem_compare_methods::CHILDOF => get_string('molCompareMethodChildOf', 'qtype_kekule_chem_base'),
+                "13" => "Arrow"
             )
         );
-        */
 
         return $result;
     }
