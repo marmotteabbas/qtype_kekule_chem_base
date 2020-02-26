@@ -36,15 +36,6 @@ class qtype_kekule_chem_base_renderer extends qtype_kekule_multianswer_renderer 
 
         // dependant files
         $kekuleDir = qtype_kekule_chem_configs::getKekuleDir();
-        /*
-        $PAGE->requires->js($kekuleDir . 'raphael-min.js');
-        $PAGE->requires->js($kekuleDir . 'Three.js');
-        $PAGE->requires->js($kekuleDir . 'kekule/kekule.js?modules=io,chemWidget,algorithm&locals=zh');
-        $PAGE->requires->js('/question/type/kekule_chem_base/scripts/render.js');
-        */
-        /*
-        $PAGE->requires->css($kekuleDir . 'kekule/themes/default/kekule.css');
-        */
         kekulejs_utils::includeKekuleCssFiles();
         $PAGE->requires->css('/question/type/kekule_chem_base/scripts/kekule_chem.css');
 
@@ -59,23 +50,35 @@ class qtype_kekule_chem_base_renderer extends qtype_kekule_multianswer_renderer 
         // so here we ensure the JS files are all loaded.
         // Mean while CSS can not be required in after body, that problem need to be resolved later.
         // dependant files
-        /*
-        $kekuleDir = qtype_kekule_chem_configs::getKekuleDir();
-        $PAGE->requires->js($kekuleDir . 'raphael-min.js');
-        $PAGE->requires->js($kekuleDir . 'Three.js');
-        $PAGE->requires->js($kekuleDir . 'kekule/kekule.js?modules=io,chemWidget,algorithm&locals=zh');
-        */
+
         kekulejs_utils::includeKekuleScriptFiles();
         $PAGE->requires->js(new moodle_url($CFG->wwwroot .'/question/type/kekule_chem_base/scripts/render.js'));
-        //$PAGE->requires->css($kekuleDir . 'kekule/themes/default/kekule.css');
-        //$PAGE->requires->css('/question/type/kekule_chem_base/scripts/kekule_chem.css');
+        
+        if (reset($qa->get_question()->answers)->comparemethod == 13) {
+            //Dirty but no choice
+            echo "<style>.K-Chem-ArrowLineIaController-ReactionArrowNormal {display:none !important;}"
+            . ".K-Chem-ArrowLineIaController-ReactionArrowReversible {display:none !important;}"
+            . ".K-Chem-ArrowLineIaController-ReactionArrowResonance {display:none !important;}"
+                . ".K-Chem-ArrowLineIaController-ReactionArrowRetrosynthesis {display:none !important;}"
+                    .".K-Chem-ArrowLineIaController-Line {display:none !important;}"
+                    .".K-Chem-ArrowLineIaController-BondFormingElectronPushingArrowSingle {display:none !important;}"
+                    .".K-Chem-ArrowLineIaController-HeatSymbol {display:none !important;}"
+                    .".K-Chem-ArrowLineIaController-AddSymbol {display:none !important;}"
+                    .".K-Chem-MolRingIaController {display:none !important;}"
+                    .".K-Chem-MolAtomIaController {display:none !important;}"
+                    .".K-Chem-MolBondIaController {display:none !important;}"
+                    .".K-Chem-MolNodeChargeIaController {display:none !important;}"
+                    . ".K-Chem-TextImageIaController {display:none !important;}"
+            . "</style>";
+        } else {
+            echo "<style>".
+                    ".K-Chem-TextImageIaController {display:none !important;}".
+                    ".K-Chem-ArrowLineIaController {display:none !important;}"
+               . "</style>";
+        }
 
         $result = parent::formulation_and_controls($qa, $options);
         return $result;
-        /*
-        $sScript = html_writer::script(null, '/moodle/question/type/kekule_chem_base/scripts/render.js');
-        return $result . $sScript;
-        */
     }
 
     /**

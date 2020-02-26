@@ -126,7 +126,10 @@ class qtype_kekule_chem_base_question extends qtype_kekule_multianswer_question 
         $srcDetail = $this->parseAnswerString($src);
         $targetDetail = $this->parseAnswerString($target);
          
-        return qtype_kekule_chem_utils::compare_arrows($srcDetail, $targetDetail);
+        //If we have choosen the compare arrows exercice
+        if ($compareMethod == 13) {
+            return qtype_kekule_chem_utils::compare_arrows($srcDetail, $targetDetail);
+        }
         
         if ($this->isBasedOnSmiles($compareMethod))
         {

@@ -1,0 +1,18 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 21 févr. 2020, 14:10:28
+    Author     : Paccalet Florent
+*/
+.K-Chem-ArrowLineIaController-ReactionArrowNormal {display:none !important;}
+.K-Chem-ArrowLineIaController-ReactionArrowReversible {display:none !important;}
+.K-Chem-ArrowLineIaController-ReactionArrowResonance {display:none !important;}
+.K-Chem-ArrowLineIaController-ReactionArrowRetrosynthesis {display:none !important;}
+.K-Chem-ArrowLineIaController-Line {display:none !important;}
+.K-Chem-ArrowLineIaController-BondFormingElectronPushingArrowSingle {display:none !important;}
+.K-Chem-ArrowLineIaController-HeatSymbol {display:none !important;}
+.K-Chem-ArrowLineIaController-AddSymbol {display:none !important;}
+

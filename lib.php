@@ -201,7 +201,12 @@ class qtype_kekule_chem_utils
         }
         return empty ($nodes_src) && empty ($nodes_target);
     }
-    
+    /**
+     * Compare electron charge of a molecule
+     * @param object $srcDetail 
+     * @param object $targetDetail
+     * @return boolean
+     */
     static public function is_electron_set_the_same_v3($srcDetail, $targetDetail) {
             $connectors_src = json_decode($srcDetail->molData)->ctab->connectors;
             $connectors_target = json_decode($targetDetail->molData)->ctab->connectors;
@@ -342,7 +347,11 @@ class qtype_kekule_chem_utils
       
         return empty ($connectors_src) && empty ($connectors_target);
     }
-    
+    /**
+     * return a merged array of nodes and connectors of a molecule
+     * @param object $molecule
+     * @return array
+     */
     static public function merge_nodes_and_connetors($molecule) {
         $array_merge = array();
 
@@ -357,11 +366,19 @@ class qtype_kekule_chem_utils
 
         return $array_merge;
     }
-    
+    /**
+     * return all items of a mollecule
+     * @param object $src
+     * @return array
+     */
     static public function list_elements($src) {
         return json_decode($src->molData)->root->children->items;
     }
-    
+    /**
+     * By elements give merged nodes and connectors list
+     * @param array $elems
+     * @return string
+     */
     static public function all_molecules_merged_bond_and_nodes_list($elems) {
         $mols = array();
         foreach ($elems as $es) {
@@ -374,39 +391,77 @@ class qtype_kekule_chem_utils
         
         return $mols;
     }
-    
+    /**
+     * Check if element of the arrows are already in the list
+     * @param type $arrow_list
+     * @param type $informations_coord_tab
+     * @return boolean
+     */
+    static public function is_already_in_list($arrow_list, $informations_coord_tab) {
+        $already = false;
+        foreach ($arrow_list as $al) {
+            if ($al['electronCount'] == $informations_coord_tab['electronCount'] && 
+                            $al['origin']['molecule'] == $informations_coord_tab['origin']['molecule'] &&
+                                $al['origin']['point'] == $informations_coord_tab['origin']['point'] &&
+                                    $al['target']['point'] == $informations_coord_tab['target']['point'] &&
+                                        $al['target']['molecule'] == $informations_coord_tab['target']['molecule']) {
+                $already = true;
+            }
+        }
+        
+        return $already;
+    }
+    /**
+     * Return an array of all arrows in the drawing
+     * @param object $srcDetail
+     * @return array
+     */
     static public function get_arrows_list($srcDetail/*, $targetDetail*/) {
     //    $root_items_target = json_decode($targetDetail->molData)->root;
-        $root_items_src = json_decode($srcDetail->molData)->root;
-   /*     if ((!isset($root_items_src) && isset($root_items_target)) || (isset($root_items_src) && !isset($root_items_target)) || (!isset($root_items_src) && !isset($root_items_target))) {
-          //I don't know yet 
-        } else {*/
-            $arrow_list = array();
-            foreach ($root_items_src->children->items as $it) {
-                if ($it->__type__ === "Kekule.Glyph.ElectronPushingArrow") {
-                //  "Kekule.Glyph.ElectronPushingArrow"
-                  $informations_coord_tab  = array();
-                  //Take coord od ... orgin point in first ... Target point in second
-                  foreach ($it->ctab->nodes as $k => $no) {
-                      $temp_data = explode(",", str_replace("]", "", str_replace("@[", "", $no->coordStickTarget)));
-                      $temp_data["molecule"] = $temp_data[0];
-                      $temp_data["point"] = $temp_data[1];
-                      unset($temp_data[0]);
-                      unset($temp_data[1]);
-                      if ($k == 0) {
-                          $informations_coord_tab["origin"] = $temp_data;
-                      } elseif ($k == 1) {
-                          $informations_coord_tab["target"] = $temp_data;
-                      }
-                  }
-                  $arrow_list[] = $informations_coord_tab;
-                }
-            }
+        if (isset(json_decode($srcDetail->molData)->root)) {
+            $root_items_src = json_decode($srcDetail->molData)->root;
+
+    /*     if ((!isset($root_items_src) && isset($root_items_target)) || (isset($root_items_src) && !isset($root_items_target)) || (!isset($root_items_src) && !isset($root_items_target))) {
+           //I don't know yet 
+         } else {*/
+             $arrow_list = array();
+             foreach ($root_items_src->children->items as $it) {
+                 if ($it->__type__ === "Kekule.Glyph.ElectronPushingArrow") {
+                 //  "Kekule.Glyph.ElectronPushingArrow"
+                   $informations_coord_tab  = array();
+                   //Take coord od ... orgin point in first ... Target point in second
+                   foreach ($it->ctab->nodes as $k => $no) {
+                       $temp_data = explode(",", str_replace("]", "", str_replace("@[", "", $no->coordStickTarget)));
+                       $temp_data["molecule"] = $temp_data[0];
+                       $temp_data["point"] = $temp_data[1];
+                       unset($temp_data[0]);
+                       unset($temp_data[1]);
+                       if ($k == 0) {
+                           $informations_coord_tab["origin"] = $temp_data;
+                       } elseif ($k == 1) {
+                           $informations_coord_tab["target"] = $temp_data;
+                       }
+                   }
+                   $informations_coord_tab["electronCount"] = $it->electronCount;
+
+                   if (!qtype_kekule_chem_utils::is_already_in_list($arrow_list, $informations_coord_tab)) {
+                     $arrow_list[] = $informations_coord_tab;
+                   }
+                 }
+             }
+        } else {
+             return array();
+        }
      //   } 
         
         return $arrow_list;
     }
-    
+    /**
+     * Return all bonds connected to a point
+     * @param int $point
+     * @param array $elemList
+     * @return type
+     */
     static public function find_covalent_connected_to_a_point($point, $elemList) {
         
         $covalentList = array();
@@ -423,7 +478,11 @@ class qtype_kekule_chem_utils
          
          return $covalentList;  
     }
-    
+    /**
+     * Count the number of bonds in a list
+     * @param array $list
+     * @return int
+     */
     static public function count_covalent_in_the_list($list) {
         $count = 0;
         foreach ($list as $l) {
@@ -433,6 +492,17 @@ class qtype_kekule_chem_utils
         }
         return $count;
     }
+    
+    /**
+     * Travel a path from a point and compare if it's the same in the student answer than in the teacher answer
+     * @param int $original_point
+     * @param int $target_point
+     * @param object $srcElemList
+     * @param object $targetElemList
+     * @param array $covalentListOriginal
+     * @param array $covalentListTarget
+     * @return boolean
+     */
     static public function compare_path($original_point, $target_point, $srcElemList, $targetElemList, $covalentListOriginal, $covalentListTarget) {       
         $covalentListTargetTemp = $covalentListTarget;
         
@@ -476,9 +546,9 @@ class qtype_kekule_chem_utils
                             $listOfJoinedObjectOrigine[$joined_obj_origine] = $joined_obj_origine;
                             $listOfJoinedObjectTarget[$joined_obj_target] = $joined_obj_target;
                             break;
-                        } else {
+                        } /*else {
                             return false;
-                        }
+                        }*/
                         
                     }
                 }
@@ -494,10 +564,12 @@ class qtype_kekule_chem_utils
             unset($srcElemList[$original_point]);
             unset($targetElemList[$target_point]);
             
+            //We remove the two original point of the list of elem src
             foreach ($listOfBondOriginalRemoved as $lobor) {
                 unset($srcElemList[$lobor]);
             }
             
+            //We remove the two original point of the list of elem teacher answer
             foreach ($listOfTBondTargetRemoved as $lobtr) {
                 unset ($targetElemList[$lobtr]);
             }
@@ -529,6 +601,7 @@ class qtype_kekule_chem_utils
                                 if ((sizeof($covalentListOriginal) == sizeof($covalentListTarget)) && sizeof($covalentListOriginal) > 0 && $srcElemList[$sel]->isotopeId == $targetElemList[$tel]->isotopeId) {
                                     if (qtype_kekule_chem_utils::compare_path($sel,$tel,$srcElemList,$targetElemList,$covalentListOriginal,$covalentListTarget) == true) {
                                         $countMatchingResult++;
+                                        break;
                                     }
                                } 
                             }
@@ -550,18 +623,17 @@ class qtype_kekule_chem_utils
             return (sizeof($covalentListOriginal) == sizeof($covalentListTarget)) && sizeof($covalentListOriginal) == 0;
         }
     }
-    
+    /**
+     * Compare the arrows of the teacher answer and the student answer 
+     * @param object $srcDetail
+     * @param object $targetDetail
+     * @return boolean
+     */
     static public function compare_arrows($srcDetail, $targetDetail) {
         $countCorrespondingArrows = 0;
         
-        //Get arrow, bond, nodes from src
-        $elems_src = qtype_kekule_chem_utils::list_elements($srcDetail);
-        $all_mols_src = qtype_kekule_chem_utils::all_molecules_merged_bond_and_nodes_list($elems_src);
         $arrow_list_src = qtype_kekule_chem_utils::get_arrows_list($srcDetail);
         
-        //Get arrow, bond, nodes from target
-        $elems_target = qtype_kekule_chem_utils::list_elements($targetDetail);
-        $all_mols_target = qtype_kekule_chem_utils::all_molecules_merged_bond_and_nodes_list($elems_target);
         $arrow_list_target = qtype_kekule_chem_utils::get_arrows_list($targetDetail);
         
         // If there is not the same number of arrows in the correct anwser & in the student answer
@@ -572,13 +644,24 @@ class qtype_kekule_chem_utils
         //Check origin an target are the same for each arrrows
         foreach ($arrow_list_src as $i => $als) {
             foreach ($arrow_list_target as $id => $alt) {
+                //Get arrow, bond, nodes from src
+                $elems_src = qtype_kekule_chem_utils::list_elements($srcDetail);
+                $all_mols_src = qtype_kekule_chem_utils::all_molecules_merged_bond_and_nodes_list($elems_src);
+                
+                $all_mols_src_2 = $all_mols_src;
+                
+                //Get arrow, bond, nodes from target
+                $elems_target = qtype_kekule_chem_utils::list_elements($targetDetail);
+                $all_mols_target = qtype_kekule_chem_utils::all_molecules_merged_bond_and_nodes_list($elems_target);
+                
+                $all_mols_target_2 = $all_mols_target;
                 //** check if same type **/
                 //origin type
                 $is_origin_type_the_same = $all_mols_src[$als["origin"]["molecule"]][$als["origin"]["point"]]->__type__ == $all_mols_target[$alt["origin"]["molecule"]][$alt["origin"]["point"]]->__type__;      
                 //target type
                 $is_target_type_the_same = $all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->__type__ == $all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->__type__;
                 
-                if ($is_origin_type_the_same && $is_target_type_the_same) {
+                if ($is_origin_type_the_same && $is_target_type_the_same && $alt["electronCount"] == $als["electronCount"] && $als["origin"]["molecule"] == $alt["origin"]["molecule"] && $als["target"]["molecule"] == $alt["target"]["molecule"]) {
                     $answer1 = false;
                             
                     if ($all_mols_src[$als["origin"]["molecule"]][$als["origin"]["point"]]->__type__ == "Kekule.Atom") {
@@ -611,7 +694,7 @@ class qtype_kekule_chem_utils
                                 //Target bond second object isotope answer
                                 $asa = $all_mols_target[$alt["origin"]["molecule"]][$all_mols_target[$alt["origin"]["molecule"]][$alt["origin"]["point"]]->connectedObjs[1]];
 
-                                if (($sfa->isotopeId == $ssa->isotopeId) && ($afa->isotopeId == $asa->isotopeId) ) {
+                                if ((($sfa->isotopeId == $afa->isotopeId) && ($ssa->isotopeId == $asa->isotopeId)) || (($sfa->isotopeId == $asa->isotopeId) && ($ssa->isotopeId == $afa->isotopeId)) ) {
                                     
                                     //Covalente list aroud the points which are themself surrounding the selected covalent
                                     $covalentListOriginalFirst = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_src[$als["origin"]["molecule"]][$als["origin"]["point"]]->connectedObjs[0], $all_mols_src[$als["origin"]["molecule"]]);
@@ -645,7 +728,7 @@ class qtype_kekule_chem_utils
                                         $ans11 = qtype_kekule_chem_utils::compare_path($idOriginal1, $idTarget2, $all_mols_src[$als["origin"]["molecule"]], $all_mols_target[$alt["origin"]["molecule"]], $covalentListOriginalFirst, $covalentListTargetSecond);
                                         
                                         //the points are well reversed 
-                                        if ($answer11 == true) {
+                                        if ($ans11 == true) {
                                              $ans22 = qtype_kekule_chem_utils::compare_path($idOriginal2, $idTarget1, $all_mols_src[$als["origin"]["molecule"]], $all_mols_target[$alt["origin"]["molecule"]], $covalentListOriginalSecond, $covalentListTargetFirst);
                                              $answer1 = $ans11 && $ans22;
                                         }
@@ -657,8 +740,6 @@ class qtype_kekule_chem_utils
                                     }
                                 }
                                    
-                            } else {
-                                return false;
                             }
                         }
                     }
@@ -666,78 +747,76 @@ class qtype_kekule_chem_utils
                     $answer2 = false;
                     
                     //Check the molecule target of the arrow
-                    if ($all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->__type__ == "Kekule.Atom") {
+                    if ($all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->__type__ == "Kekule.Atom") {
                         //Check target istope
-                        $is_target_iso_the_same = $all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->isotopeId == $all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->isotopeId;
+                        $is_target_iso_the_same = $all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->isotopeId == $all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->isotopeId;
                         
                         if ($is_target_iso_the_same) {
-                            $covalentListOriginal = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($als["target"]["point"],$all_mols_src[$als["target"]["molecule"]]);
-                            $covalentListTarget = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($alt["target"]["point"],$all_mols_target[$alt["target"]["molecule"]]);
-                            $answer2 = qtype_kekule_chem_utils::compare_path($als["target"]["point"],$alt["target"]["point"],$all_mols_src[$als["target"]["molecule"]],$all_mols_target[$alt["target"]["molecule"]], $covalentListOriginal, $covalentListTarget);
+                            $covalentListOriginal = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($als["target"]["point"],$all_mols_src_2[$als["target"]["molecule"]]);
+                            $covalentListTarget = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($alt["target"]["point"],$all_mols_target_2[$alt["target"]["molecule"]]);
+                            $answer2 = qtype_kekule_chem_utils::compare_path($als["target"]["point"],$alt["target"]["point"],$all_mols_src_2[$als["target"]["molecule"]],$all_mols_target_2[$alt["target"]["molecule"]], $covalentListOriginal, $covalentListTarget);
                         } 
                     } else {
-                        if ($all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->bondType == "covalent") {
+                        if ($all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->bondType == "covalent") {
                             //check bondorder
-                            $bond_same = $all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->bondOrder == $all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->bondOrder;
+                            $bond_same = $all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->bondOrder == $all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->bondOrder;
                             
-                            if ($bond_same == false) {
-                                return false;
-                            }
+                            if ($bond_same == true) {
                             /*Check Connected Objects nature*/
                             //Src bond first object isotope student answer
-                            $sfa = $all_mols_src[$als["target"]["molecule"]][$all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[0]];                            
+                            $sfa = $all_mols_src_2[$als["target"]["molecule"]][$all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[0]];                            
                             //Src bond second object isotope answer
-                            $ssa = $all_mols_src[$als["target"]["molecule"]][$all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[1]];
+                            $ssa = $all_mols_src_2[$als["target"]["molecule"]][$all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[1]];
                             //Target bond first object isotope answer
-                            $afa = $all_mols_target[$alt["target"]["molecule"]][$all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[0]];
+                            $afa = $all_mols_target_2[$alt["target"]["molecule"]][$all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[0]];
                             //Target bond second object isotope answer
-                            $asa = $all_mols_target[$alt["target"]["molecule"]][$all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[1]];
+                            $asa = $all_mols_target_2[$alt["target"]["molecule"]][$all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[1]];
                             
-                            if (($sfa->isotopeId == $ssa->isotopeId) && ($afa->isotopeId == $asa->isotopeId) ) {
-                                                                    //Covalente list aroud the points which are themself surrounding the selected covalent
-                                $covalentListOriginalFirst = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[0], $all_mols_src[$als["target"]["molecule"]]);
-                                $covalentListOriginalSecond = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[1] ,$all_mols_src[$als["target"]["molecule"]]);
-                                    
-                                $covalentListTargetFirst = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[0] ,$all_mols_target[$alt["target"]["molecule"]]);
-                                $covalentListTargetSecond = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[1] ,$all_mols_target[$alt["target"]["molecule"]]);
-                                    
-                                $idOriginal1 = $all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[0];
-                                $idOriginal2 = $all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[1];
-                                   
-                                $idTarget1 = $all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[0];
-                                $idTarget2 = $all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[1];
-                                    
-                                //We unset the allready checked bond
-                                unset($all_mols_src[$als["target"]["molecule"]][$als["target"]["point"]]);
-                                unset($all_mols_target[$alt["target"]["molecule"]][$alt["target"]["point"]]);
-                                    
-                                unset($covalentListOriginalFirst[$als["target"]["point"]]);
-                                unset($covalentListOriginalSecond[$als["target"]["point"]]);       
-                                  
-                                unset($covalentListTargetFirst[$alt["target"]["point"]]);
-                                unset($covalentListTargetSecond[$alt["target"]["point"]]);      
-                                    
-                                /************** testing path for points of arrow origin **************/
-                                //Compare the first point of covalent STUDENT with first of covalent teacher answer
-                                $ans1 = qtype_kekule_chem_utils::compare_path($idOriginal1, $idTarget1, $all_mols_src[$als["target"]["molecule"]], $all_mols_target[$alt["target"]["molecule"]], $covalentListOriginalFirst, $covalentListTargetFirst);
+                                if ((($sfa->isotopeId == $afa->isotopeId) && ($ssa->isotopeId == $asa->isotopeId)) || (($sfa->isotopeId == $asa->isotopeId) && ($ssa->isotopeId == $afa->isotopeId)) ) {
+                                                                        //Covalente list aroud the points which are themself surrounding the selected covalent
+                                    $covalentListOriginalFirst = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[0], $all_mols_src_2[$als["target"]["molecule"]]);
+                                    $covalentListOriginalSecond = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[1] ,$all_mols_src_2[$als["target"]["molecule"]]);
 
-                                if (!$ans1) {
-                                    // if the points are reversed check in other order
-                                    $ans11 = qtype_kekule_chem_utils::compare_path($idOriginal1, $idTarget2, $all_mols_src[$als["target"]["molecule"]], $all_mols_target[$alt["target"]["molecule"]], $covalentListOriginalFirst, $covalentListTargetSecond);
-                                        
-                                    //the points are well reversed 
-                                    if ($ans11 == true) {
-                                         $ans22 = qtype_kekule_chem_utils::compare_path($idOriginal2, $idTarget1, $all_mols_src[$als["target"]["molecule"]], $all_mols_target[$alt["target"]["molecule"]], $covalentListOriginalSecond, $covalentListTargetFirst);
-                                         $answer2 = $ans11 && $ans22;
+                                    $covalentListTargetFirst = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[0] ,$all_mols_target_2[$alt["target"]["molecule"]]);
+                                    $covalentListTargetSecond = qtype_kekule_chem_utils::find_covalent_connected_to_a_point($all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[1] ,$all_mols_target_2[$alt["target"]["molecule"]]);
+
+                                    $idOriginal1 = $all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[0];
+                                    $idOriginal2 = $all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]->connectedObjs[1];
+
+                                    $idTarget1 = $all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[0];
+                                    $idTarget2 = $all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]->connectedObjs[1];
+
+                                    //We unset the allready checked bond
+                                    unset($all_mols_src_2[$als["target"]["molecule"]][$als["target"]["point"]]);
+                                    unset($all_mols_target_2[$alt["target"]["molecule"]][$alt["target"]["point"]]);
+
+                                    unset($covalentListOriginalFirst[$als["target"]["point"]]);
+                                    unset($covalentListOriginalSecond[$als["target"]["point"]]);       
+
+                                    unset($covalentListTargetFirst[$alt["target"]["point"]]);
+                                    unset($covalentListTargetSecond[$alt["target"]["point"]]);      
+
+                                    /************** testing path for points of arrow origin **************/
+                                    //Compare the first point of covalent STUDENT with first of covalent teacher answer
+                                    $ans1 = qtype_kekule_chem_utils::compare_path($idOriginal1, $idTarget1, $all_mols_src_2[$als["target"]["molecule"]], $all_mols_target_2[$alt["target"]["molecule"]], $covalentListOriginalFirst, $covalentListTargetFirst);
+
+                                    if (!$ans1) {
+                                        // if the points are reversed check in other order
+                                        $ans11 = qtype_kekule_chem_utils::compare_path($idOriginal1, $idTarget2, $all_mols_src_2[$als["target"]["molecule"]], $all_mols_target_2[$alt["target"]["molecule"]], $covalentListOriginalFirst, $covalentListTargetSecond);
+
+                                        //the points are well reversed 
+                                        if ($ans11 == true) {
+                                             $ans22 = qtype_kekule_chem_utils::compare_path($idOriginal2, $idTarget1, $all_mols_src_2[$als["target"]["molecule"]], $all_mols_target_2[$alt["target"]["molecule"]], $covalentListOriginalSecond, $covalentListTargetFirst);
+                                             $answer2 = $ans11 && $ans22;
+                                        }
+
+                                    } else { //it's shire the points are not reversed
+                                        //Compare the second point of covalent STUDENT with second of covalent teacher answer
+                                        $ans2 = qtype_kekule_chem_utils::compare_path($idOriginal2, $idTarget2, $all_mols_src_2[$als["target"]["molecule"]], $all_mols_target_2[$alt["target"]["molecule"]], $covalentListOriginalSecond, $covalentListTargetSecond);
+                                        $answer2 = $ans1 && $ans2;
                                     }
-                                        
-                                } else { //it's shire the points are not reversed
-                                    //Compare the second point of covalent STUDENT with second of covalent teacher answer
-                                    $ans2 = qtype_kekule_chem_utils::compare_path($idOriginal2, $idTarget2, $all_mols_src[$als["target"]["molecule"]], $all_mols_target[$alt["target"]["molecule"]], $covalentListOriginalSecond, $covalentListTargetSecond);
-                                    $answer2 = $ans1 && $ans2;
                                 }
                             }
-                            
                         }
                     }
                     
@@ -750,9 +829,9 @@ class qtype_kekule_chem_utils
                   /*  if ($answer1 && $is_target_iso_the_same) {
                         break;
                     }*/
-                } else {
+                } /*else {
                     return false;
-                }
+                }*/
                 /************************/
                 
                 
