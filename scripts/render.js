@@ -23,11 +23,19 @@ function createChemWidgets(placeHolderElems)
 		var widgetType = placeHolder.getAttribute('data-preferWidget');
 		var ctrlName = placeHolder.getAttribute('data-name');
 		var inputType = placeHolder.getAttribute('data-input-type');
-		createChemWidget(placeHolder, ctrlName, className, widgetType, inputType);
+                
+                if (placeHolder.getAttribute("exot") == "chem_multi") {
+                    ctrlName = ctrlName.substr(0,ctrlName.length-1)+"0";
+                    createChemWidget(placeHolder, ctrlName, className, widgetType, inputType, placeHolder.getAttribute("nexot"));
+                } else {
+                    createChemWidget(placeHolder, ctrlName, className, widgetType, inputType);
+                }
+                
+		
 	}
 }
 
-function createChemWidget(placeHolder, ansCtrlName, className, widgetType, inputType)
+function createChemWidget(placeHolder, ansCtrlName, className, widgetType, inputType, nexot=null)
 {
 	var widgetClass, widgetProps;
 	if (widgetType === 'composer')
@@ -77,7 +85,12 @@ function createChemWidget(placeHolder, ansCtrlName, className, widgetType, input
 		if (ansValue)
 		{
 			//console.log(ansValue);
-			jsonObj = parseAnswerString(ansValue);
+                        if (ctrlElem.getAttribute("exot") == "chem_multi") {
+                            jsonObj = parseAnswerString(ansValue)[placeHolder.getAttribute('nexot')];
+                        } else {
+                            jsonObj = parseAnswerString(ansValue);
+                        }
+			
 			/*
 			if (jsonObj && jsonObj.molData)
 			{
@@ -94,6 +107,7 @@ function createChemWidget(placeHolder, ansCtrlName, className, widgetType, input
 	var result = new widgetClass(placeHolder);
 	result.addClassName(className);
 	result.__answerElem__ = ctrlElem;
+        result.nexot = nexot;
 	if (widgetProps)
 		result.setPropValues(widgetProps);
 
@@ -104,6 +118,7 @@ function createChemWidget(placeHolder, ansCtrlName, className, widgetType, input
 		try
 		{
 			var chemObj = Kekule.IO.loadMimeData(molData, dataType);
+                        //chemObj.nexot = nexot;
 			if (chemObj)
 				result.setChemObj(chemObj);
 		}
@@ -152,7 +167,33 @@ function reactViewerChemObjLoad(e)
 				};
 				sAnswer = JSON.stringify(saveObj);
 			}
-			ansElem.value = sAnswer;
+                        
+                        if (ansElem.getAttribute("exot") == "chem_multi")  {
+                            if (viewer.nexot == 1) {
+                                if (ansElem.value == "") {
+                                    sAnswer = {0:{}, 1:saveObj};
+                                    var objanswerdouble = sAnswer;
+                                } else {
+                                    var objanswerdouble = parseAnswerString(ansElem.value);
+                                    objanswerdouble[1] = saveObj;
+                                }
+                                
+                            }else if (viewer.nexot == 0){
+                                if (ansElem.value == "") {
+                                    sAnswer = {0:saveObj, 1:{}};
+                                    var objanswerdouble = sAnswer;
+                                } else {
+                                    var objanswerdouble = parseAnswerString(ansElem.value);
+                                    objanswerdouble[0] = saveObj;
+                                }
+                            }
+                            
+                            sAnswer = JSON.stringify(objanswerdouble);
+                            ansElem.value = sAnswer;
+                            
+                        } else {
+                            ansElem.value = sAnswer;
+                        }
 		}
 	}
 }

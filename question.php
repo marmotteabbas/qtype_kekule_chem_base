@@ -121,7 +121,7 @@ class qtype_kekule_chem_base_question extends qtype_kekule_multianswer_question 
             ($compareMethod == qtype_kekule_chem_compare_methods::CHILDOF)? qtype_kekule_chem_configs::PATH_CONTAIN:
             qtype_kekule_chem_configs::PATH_COMPARE;
     }
-    private function _compareMolAnsString($src, $target, $compareMethod, $compareLevel)
+    protected function _compareMolAnsString($src, $target, $compareMethod, $compareLevel)
     {
         $srcDetail = $this->parseAnswerString($src);
         $targetDetail = $this->parseAnswerString($target);

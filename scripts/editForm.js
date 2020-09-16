@@ -121,7 +121,7 @@ function createChemViewer(placeHolder, molData, molDataType, className, inputTyp
 		}
 		// save ansIndex
 		result.__answerIndex__ = ansIndex;
-		var ansRelElems = getAnsRelatedElems(ansIndex);
+		var ansRelElems = getAnsRelatedElems(placeHolder.name);
 		result.__answerRelElems__ = ansRelElems;
 		result.on('load', reactChemObjLoad);
 		return result;
@@ -187,12 +187,12 @@ function getAnsRelatedElemIndex(elem)
 	}
 	return result;
 }
-function getAnsRelatedElems(ansIndex)
+function getAnsRelatedElems(name)
 {
 	return {
 		//'molData': document.getElementsByName('moldata[' + ansIndex + ']')[0],
 		//'smiles': document.getElementsByName('smiles[' + ansIndex + ']')[0],
-		'answer': document.getElementsByName('answer[' + ansIndex + ']')[0]
+		'answer': document.getElementsByName(name)[0]
 	};
 }
 
